@@ -1,0 +1,4 @@
+  consumer:
+    build: ./consumer
+    depends_on:
+      - kafka
