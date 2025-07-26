@@ -19,21 +19,21 @@ def esperar_kafka():
                 auto_offset_reset='earliest',
                 enable_auto_commit=True
             )
-            print("Conectado a Kafka.")
+            print("Conectado a Kafka.",flush=True)
             return consumer
         except NoBrokersAvailable:
-            print("Esperando que Kafka esté disponible...")
+            print("Esperando que Kafka esté disponible...",flush=True)
             time.sleep(5)
 
 def consumir_datos(consumer):
     """Lee datos del tópico y maneja errores de conexión."""
-    print(f"Esperando datos del tópico '{TOPIC_NAME}'...")
+    print(f"Esperando datos del tópico '{TOPIC_NAME}'...",flush=True)
     while True:
         try:
             for msg in consumer:
-                print(f"Recibido: {msg.value}")
+                print(f"Recibido: {msg.value}",flush=True)
         except KafkaError as e:
-            print(f"Error de Kafka: {e}. Reintentando en 5 segundos...")
+            print(f"Error de Kafka: {e}. Reintentando en 5 segundos...",flush=True)
             time.sleep(5)
             consumer.close()
             consumer = esperar_kafka()
