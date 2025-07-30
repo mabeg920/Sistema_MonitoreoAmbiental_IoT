@@ -17,7 +17,7 @@ def esperar_kafka():
                 value_deserializer=lambda m: json.loads(m.decode('utf-8')),
                 group_id=GROUP_ID,
                 auto_offset_reset='earliest',
-                enable_auto_commit=True
+                enable_auto_commit=True,
             )
             print("Conectado a Kafka.",flush=True)
             return consumer
@@ -32,6 +32,7 @@ def consumir_datos(consumer):
         try:
             for msg in consumer:
                 print(f"Recibido: {msg.value}",flush=True)
+                time.sleep(2)
         except KafkaError as e:
             print(f"Error de Kafka: {e}. Reintentando en 5 segundos...",flush=True)
             time.sleep(5)

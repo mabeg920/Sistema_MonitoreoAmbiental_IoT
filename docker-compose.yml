@@ -8,6 +8,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 2181:2181
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -21,9 +23,14 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://broker:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1     
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
     ports:
       - 9092:9092
+    volumes:
+      - kafka-data:/var/lib/kafka/data
 
   producer:
     build: ./producer
@@ -34,3 +41,13 @@ services:
     build: ./consumer
     depends_on:
       - kafka
+
+  consumer1:
+    build: ./consumer
+    depends_on:
+      - kafka
+
+volumes:
+  zookeeper-data:
+  kafka-data:
+  
