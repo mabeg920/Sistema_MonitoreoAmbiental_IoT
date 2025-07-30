@@ -1,53 +1,53 @@
 
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
+services: #Definicion de contenedores
+  zookeeper: #Contenedor Zookeeper
+    image: confluentinc/cp-zookeeper:latest #Imagen oficial de Zookeeper
+    container_name: zookeeper #Nombre del contenedor
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_CLIENT_PORT: 2181 #Puerto de conexión de clientes (Kafka).
+      ZOOKEEPER_TICK_TIME: 2000 #Intervalo de tiempo básico de sincronización.
     ports:
-      - 2181:2181
-    volumes:
-      - zookeeper-data:/var/lib/zookeeper/data
+      - 2181:2181 #Mapea el puerto 2181 del contenedor al host.
+    volumes: #Creacion de volumenes para la persistencia de datos 
+      - zookeeper-data:/var/lib/zookeeper/data #Guarda los datos de Zookeeper en un volumen persistente.
 
   kafka:
-    image: confluentinc/cp-kafka:7.4.0
-    container_name: kafka
+    image: confluentinc/cp-kafka:7.4.0 #Imagen oficial de Kafka
+    container_name: kafka #Nombre del contenedor
     depends_on:
-      - zookeeper
+      - zookeeper #Kafka se iniciará después de Zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://broker:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  
-      KAFKA_LOG_DIRS: /var/lib/kafka/data
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_BROKER_ID: 1 # ID único del broker
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181' #Conexion de Kafka al contenedor zookeeper
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT #Define protocolos de seguridad para los listeners
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://broker:29092 #Definicion del acceso(interno) de los clientes al broker 
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 #Número de réplicas para el topic de offsets
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1 #Número mínimo de réplicas sincronizadas
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  #Réplicas para el topic de estado de transacciones
+      KAFKA_LOG_DIRS: /var/lib/kafka/data #Directorio para logs internos de Kafka.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true' #Crea automáticamente topics si no existen
+      KAFKA_DELETE_TOPIC_ENABLE: 'true' #Permite borrar topics
     ports:
-      - 9092:9092
+      - 9092:9092 #Expone el puerto 9092 para conexión externa (desde el host).
     volumes:
-      - kafka-data:/var/lib/kafka/data
+      - kafka-data:/var/lib/kafka/data #Guarda los datos de kafka en un volumen persistente.
 
   producer:
-    build: ./producer
+    build: ./producer #Construye un contenedor propio para el producer a partir de su Dockerfile
     depends_on:
-      - kafka
+      - kafka #Espera a que Kafka esté listo para iniciar
 
   consumer:
-    build: ./consumer
+    build: ./consumer #Construye un contenedor propio para el consumer a partir de su Dockerfile
     depends_on:
-      - kafka
+      - kafka #Espera a que Kafka esté listo para iniciar
 
-  consumer1:
-    build: ./consumer
+  consumer1: #Simula un segundo consumidor
+    build: ./consumer ##Construye un contenedor propio para el consumer1 a partir de su Dockerfile
     depends_on:
-      - kafka
+      - kafka #Espera a que Kafka esté listo para iniciar
 
-volumes:
+volumes: #Definicion de volumenes para que los datos de Zookeeper y Kafka no se pierdan cuando se detienen o se reinician los contenedores.
   zookeeper-data:
   kafka-data:
   
